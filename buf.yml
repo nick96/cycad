@@ -1,0 +1,9 @@
+build:
+  roots:
+    - protos
+    - googleapis
+lint:
+  ignore:
+    - google
+    - grafeas
+    - gapic

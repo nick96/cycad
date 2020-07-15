@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package editorservice.v1;
+
+import "google/api/annotations.proto";
+
+service EditorService {
+	rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
+		option (google.api.http) = {
+			post: "/v1/editor/node"
+			body: "*"
+		};	
+	}
+}
