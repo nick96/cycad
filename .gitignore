@@ -4,3 +4,7 @@
 *.swagger.json
 # Generated go code for gRPC gateway
 *.pb.gw.go
+# Binary for editorservice gRPC gateway
+editorservice/gateway/gateway
+# Binary for editorservice
+editorservice/editorservice

@@ -18,4 +18,7 @@ editor-swagger:
 editor-gateway: editor-gateway-pb editor-pb
 	cd editorservice && go build -o gateway/gateway github.com/nick96/cycad/editorservice/gateway
 
-editor: editor-swagger editor-gateway
+editor-service: editor-pb
+	cd editorservice && go build github.com/nick96/cycad/editorservice
+
+editor: editor-swagger editor-gateway editor-service
