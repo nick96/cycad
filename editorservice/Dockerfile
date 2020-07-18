@@ -11,8 +11,7 @@ COPY main.go .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o editorservice .
 
-# FROM scratch
-FROM golang:1.14
+FROM scratch
 
 WORKDIR /app
 
