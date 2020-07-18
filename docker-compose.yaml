@@ -17,20 +17,33 @@ services:
 
   editorservice:
     build:
-      dockerfile: Dockerfile
+      dockerfile: $PWD/Dockerfile.service
       context: ./editorservice
     command:
-      - -port
-      - "9090"
       - -logtostderr
-      - -db
-      - "postgres://${POSTGRES_USER:-editor_usr}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-editor}"
     restart: on-failure
     environment:
-      POSTGRES_DB: "${POSTGRES_DB:-editor}"
       POSTGRES_USER: "${POSTGRES_USER:-editor_usr}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "${POSTGRES_DB:-editor}"
+
+      SERVICE_PORT: "9090"
+
       CONSUL_HTTP_ADDR: "consul:8500"
+
+  health:
+    build:
+      dockerfile: $PWD/Dockerfile.service
+      context: ./healthservice
+    restart: on-failure
+    command:
+      - -logtostderr
+    environment:
+      CONSUL_HTTP_ADDR: "consul:8500"
+
+      SERVICE_PORT: "9090"
 
   db:
     image: "postgres:13"
@@ -56,7 +69,7 @@ services:
       - --port
       - "5432"
       - --migrations
-      - "migrations"
+      - "editorservice/migrations"
       - --host
       - "db"
     environment:
