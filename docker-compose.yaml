@@ -33,7 +33,7 @@ services:
 
       CONSUL_HTTP_ADDR: "consul:8500"
 
-  health:
+  healthservice:
     build:
       dockerfile: $PWD/Dockerfile.service
       context: ./healthservice
