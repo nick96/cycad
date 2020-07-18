@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-package editorservice.v1;
+package services.editor;
 
 import "google/api/annotations.proto";
+
 
 service EditorService {
 	rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
@@ -11,4 +12,36 @@ service EditorService {
 			body: "*"
 		};	
 	}
+
+	rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
+		option (google.api.http) = {
+			get: "/v1/editor/node/{id}"
+		};
+	}
+}
+
+message AddNodeRequest {
+	string name = 1;
+	string content = 2;
+}
+
+message AddNodeResponse {
+	string name = 1;
+	string content = 2;
+	repeated BackLink backlinks = 3;
+}
+
+message BackLink {
+	string name = 1;
+	string context = 2;
+}
+
+message GetNodeRequest {
+	string id = 1;
+}
+
+message GetNodeResponse {
+	string name = 1;
+	string content = 2;
+	repeated BackLink backlinks = 3;
 }
