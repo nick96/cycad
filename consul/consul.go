@@ -26,21 +26,19 @@ func RegisterService(serviceName string, port string) error {
 }
 
 func HealthCheckService(serviceName string) (bool, error) {
-	cfg := consuleapi.DefaultConfig()
+	cfg := consulapi.DefaultConfig()
 	consul, err := consulapi.NewClient(cfg)
 	if err != nil {
 		return false, err
 	}
 
-	healthChecks, err := consul.Agent().AgentHealthServiceByName(serviceName)
+	status, _, err := consul.Agent().AgentHealthServiceByName(serviceName)
 	if err != nil {
 		return false, err
 	}
 
-	for _, healthCheck := range healthChecks {
-		if healthCheck.AggregateStatus == "passing" {
-			return true
-		}
+	if status == "passing" {
+		return true, nil
 	}
-	return false
+	return false, nil
 }
