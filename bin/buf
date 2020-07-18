@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Wrapper around buf that just runs it in a docker container. Call it as you would with buf normally.
-
-# Allow configuring the version used by setting the BUF_VER environment variable
-BUF_VER="${BUF_VER:-0.20.1}"
-
-docker run -v "$(pwd):/workspace" --workdir=/workspace "bufbuild/buf:$BUF_VER" $@
