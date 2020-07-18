@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/golang/glog"
 
@@ -26,9 +27,6 @@ const (
 )
 
 var (
-	port = flag.String("port", "9090", "Port to listen on")
-	db   = flag.String("db", "", "Database connection string")
-
 	errNotImplemented = errors.New("Not implemented")
 )
 
@@ -36,16 +34,22 @@ func main() {
 	flag.Parse()
 	defer glog.Flush()
 
-	if *db == "" {
-		glog.Exit("'db' flag is required")
-	}
+	dbConnString := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DB"),
+	)
+	port := os.Getenv("SERVICE_PORT")
 
 	glog.Infof("Connecting to database...")
-	dbconfig, err := pgxpool.ParseConfig(*db)
+	dbConfig, err := pgxpool.ParseConfig(dbConnString)
 	if err != nil {
 		glog.Exitf("Faield to parse config: %v", err)
 	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+	dbConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
 		conn.ConnInfo().RegisterDataType(pgtype.DataType{
 			Value: &pgtypeuuid.UUID{},
 			Name:  "uuid",
@@ -54,7 +58,7 @@ func main() {
 		return nil
 	}
 
-	db, err := pgxpool.Connect(context.Background(), *db)
+	db, err := pgxpool.ConnectConfig(context.Background(), dbConfig)
 	if err != nil {
 		glog.Exitf("Failed to create session database on %s: %v", *db, err)
 	}
@@ -70,7 +74,7 @@ func main() {
 	// used localhost before and it was very frustrating to debug! It'll
 	// work locally but the connection is refused if you call it from
 	// outside the container.
-	endpoint := fmt.Sprintf("0.0.0.0:%s", *port)
+	endpoint := fmt.Sprintf("0.0.0.0:%s", port)
 	glog.Infof("Starting TCP listener on %s...", endpoint)
 	lis, err := net.Listen("tcp", endpoint)
 	if err != nil {
@@ -89,12 +93,12 @@ func main() {
 	reflection.Register(svr)
 
 	glog.Info("Registering service with consul")
-	if err := consul.RegisterService(serviceName, *port); err != nil {
+	if err := consul.RegisterService(serviceName, port); err != nil {
 		glog.Exitf("Failed to register service with consul: %v", err)
 	}
 	glog.Info("Successfull registered service with consul")
 
-	glog.Infof("Starting editor service on port %s", *port)
+	glog.Infof("Starting editor service on port %s", port)
 	if err := svr.Serve(lis); err != nil {
 		glog.Exitf("Server exited: %v", err)
 	}
