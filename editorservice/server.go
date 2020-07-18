@@ -143,7 +143,7 @@ func (s *editorServiceServer) GetNode(ctx context.Context, req *pb.GetNodeReques
 	).Scan(&name, &content)
 	if err != nil && err == pgx.ErrNoRows {
 		return nil, status.Errorf(codes.NotFound, "No node with ID %s was found", id)
-	} else {
+	} else if err != nil {
 		glog.Errorf("Failed to get node by ID %v: %v", id, err)
 		// There was a problem. We've logged it at let the user know
 		// that it's not them, it's us. Hopefully it works if the user

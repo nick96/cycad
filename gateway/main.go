@@ -11,7 +11,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 
-	gw "github.com/nick96/cycad/editorservice/pb"
+	gw "github.com/nick96/cycad/gateway/pb"
 )
 
 func run() error {

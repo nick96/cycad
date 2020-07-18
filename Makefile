@@ -12,6 +12,7 @@ editor-pb:
 
 editor-gateway-pb:
 	$(PROTOC) $(PROTOC_ARGS) -Iprotos --grpc-gateway_out=logtostderr=true,paths=source_relative:./gateway/pb $(EDITOR_PROTO)
+	$(PROTOC) $(PROTOC_ARGS) -Iprotos --go_out=plugins=grpc,paths=source_relative:./gateway/pb $(EDITOR_PROTO)
 
 editor: editor-pb
 	cd editorservice && go build github.com/nick96/cycad/editorservice
@@ -21,10 +22,13 @@ health-pb:
 
 health-gateway-pb:
 	$(PROTOC) $(PROTOC_ARGS) -Iprotos --grpc-gateway_out=logtostderr=true,paths=source_relative:./gateway/pb $(HEALTH_PROTO)
+	$(PROTOC) $(PROTOC_ARGS) -Iprotos --go_out=plugins=grpc,paths=source_relative:./gateway/pb $(HEALTH_PROTO)
+
+gateway-pb: editor-gateway-pb health-gateway-pb
 
 health: health-pb
 	cd healthservice && go build github.com/nick96/cycad/healthservice
 
-gateway: editor-gateway-pb health-gateway-pb
+gateway: gateway-pb
 	cd gateway && go build github.com/nick96/cycad/gateway
 
