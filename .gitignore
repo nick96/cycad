@@ -1,1 +1,6 @@
+# Generated go code for protobuf definitions
 *.pb.go
+# Generated swagger definitions
+*.swagger.json
+# Generated go code for gRPC gateway
+*.pb.gw.go

@@ -4,6 +4,8 @@ package services.editor;
 
 import "google/api/annotations.proto";
 
+option go_package = "pb";
+
 
 service EditorService {
 	rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
