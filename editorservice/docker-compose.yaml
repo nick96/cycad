@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  gateway:
+    container_name: gateway
+    build:
+      dockerfile: Dockerfile.gateway
+      context: .
+    command:
+      - -port
+      - "8081"
+      - -endpoint
+      - "editorservice:9090"
+      - -logtostderr
+    ports:
+      - "8081:8081"
+    restart: on-failure
+
+  editorservice:
+    container_name: editorservice
+    build:
+      dockerfile: Dockerfile
+      context: .
+    command:
+      - -port
+      - "9090"
+      - -logtostderr
+    expose:
+      - "9090"
+    restart: on-failure
