@@ -1,0 +1,70 @@
+version: "3.7"
+
+services:
+  gateway:
+    build:
+      dockerfile: $PWD/Dockerfile.service
+      context: ./gateway
+    command:
+      - -logtostderr
+    ports:
+      - "8081:8081"
+    restart: on-failure
+    environment:
+      GATEWAY_PORT: "8081"
+      ENDPOINT_PORT: "editorservice:9090"
+      HEALTH_ENDPOINT: "healthservice:9090"
+
+  editorservice:
+    build:
+      dockerfile: Dockerfile
+      context: ./editorservice
+    command:
+      - -port
+      - "9090"
+      - -logtostderr
+      - -db
+      - "postgres://${POSTGRES_USER:-editor_usr}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-editor}"
+    restart: on-failure
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-editor}"
+      POSTGRES_USER: "${POSTGRES_USER:-editor_usr}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      CONSUL_HTTP_ADDR: "consul:8500"
+
+  db:
+    image: "postgres:13"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-editor}"
+      POSTGRES_USER: "${POSTGRES_USER:-editor_usr}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+
+  migration:
+    build:
+      dockerfile: Dockerfile.migration
+      context: ./editorservice
+    volumes:
+      - "./:/workspace"
+    command:
+      - migrate
+      - --database
+      - "${POSTGRES_DB:-editor}"
+      - --user
+      - "${POSTGRES_USER:-editor_usr}"
+      - --password
+      - "${POSTGRES_PASSWORD:-password}"
+      - --port
+      - "5432"
+      - --migrations
+      - "migrations"
+      - --host
+      - "db"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-editor}"
+      POSTGRES_USER: "${POSTGRES_USER:-editor_usr}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+
+  consul:
+    image: "consul:1.8"
+    ports:
+      - "8500:8500"

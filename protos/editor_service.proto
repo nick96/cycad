@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package services.editor.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "pb";
+
+
+service EditorService {
+	rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
+		option (google.api.http) = {
+			post: "/v1/editor/node"
+			body: "*"
+		};	
+	}
+
+	rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
+		option (google.api.http) = {
+			get: "/v1/editor/node/{id}"
+		};
+	}
+
+  rpc GetAllNodes(google.protobuf.Empty) returns (stream GetNodeResponse) {
+    option (google.api.http) = {
+      get: "/v1/editor/node"
+    };
+  }
+}
+
+message AddNodeRequest {
+	string name = 1;
+	string content = 2;
+}
+
+message AddNodeResponse {
+	string name = 1;
+	string content = 2;
+	repeated Backlink backlinks = 3;
+  repeated Link links = 4;
+}
+
+message Backlink {
+	string name = 1;
+	string context = 2;
+}
+
+message Link {
+  string name = 1;
+  int32 offset = 2;
+}
+
+message GetNodeRequest {
+	string id = 1;
+}
+
+message GetNodeResponse {
+	string name = 1;
+	string content = 2;
+	repeated Backlink backlinks = 3;
+  repeated Link links = 4;
+}
