@@ -2,12 +2,17 @@ PROTOC=bin/protoc
 
 PROTOC_ARGS=-I./third_party/googleapis
 
-EDITOR_PROTO=editorservice/service.proto
+EDITOR_PROTO=editorservice/editor_service.proto
+EDITOR_HEALTH_PROTO=editorservice/health_service.proto
 
 all: editor
 
 editor-pb:
 	$(PROTOC) $(PROTOC_ARGS) -Ieditorservice --go_out=plugins=grpc,paths=source_relative:./editorservice/pb $(EDITOR_PROTO)
+
+# TODO: Implement grpc health checking protocol (https://github.com/grpc/grpc/blob/master/doc/health-checking.md)
+# editor-health-pb:
+# 	$(PROTOC) $(PROTOC_ARGS) -Ieditorservice --go_out=plugins=grpc,paths=source_relative:./editorservice/pb $(EDITOR_HEALTH_PROTO)
 
 editor-gateway-pb:
 	$(PROTOC) $(PROTOC_ARGS) -Ieditorservice --grpc-gateway_out=logtostderr=true,paths=source_relative:./editorservice/pb $(EDITOR_PROTO)
