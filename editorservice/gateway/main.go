@@ -26,7 +26,7 @@ func run() error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	if conn, err := grpc.Dial(*endpoint, opts...); err != nil {
-		glog.Exitf("Failed to connect to endpoint %s: %v", *endpoint, err)
+		return err
 	} else {
 		glog.Infof("Successfully dialed endpoint %s", *endpoint)
 		conn.Close()
@@ -46,6 +46,6 @@ func main() {
 	defer glog.Flush()
 
 	if err := run(); err != nil {
-		glog.Fatal(err)
+		glog.Exitf("Editor service dateway exited: %v", err)
 	}
 }
