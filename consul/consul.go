@@ -24,3 +24,23 @@ func RegisterService(serviceName string, port string) error {
 	registration.Port = portNum
 	return consul.Agent().ServiceRegister(registration)
 }
+
+func HealthCheckService(serviceName string) (bool, error) {
+	cfg := consuleapi.DefaultConfig()
+	consul, err := consulapi.NewClient(cfg)
+	if err != nil {
+		return false, err
+	}
+
+	healthChecks, err := consul.Agent().AgentHealthServiceByName(serviceName)
+	if err != nil {
+		return false, err
+	}
+
+	for _, healthCheck := range healthChecks {
+		if healthCheck.AggregateStatus == "passing" {
+			return true
+		}
+	}
+	return false
+}
